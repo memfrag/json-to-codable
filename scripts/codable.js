@@ -100,13 +100,13 @@ function generateMembers(properties, indentLevel) {
         var member = "";
         
         if (["Bool", "Int", "Double", "String"].includes(property.type)) {
-            member += indent(indentLevel + 1) + `let ${property.name}: ${property.type}`;
+            member += indent(indentLevel + 1) + `public let ${property.name}: ${property.type}`;
             member += property.optional ? "?" : "";
         } else if (property.type == "[]") {
-            member += indent(indentLevel + 1) + `let ${property.name}: [${property.subtype}]`;
+            member += indent(indentLevel + 1) + `public let ${property.name}: [${property.subtype}]`;
             member += property.optional ? "?" : "";
         } else {
-            member += indent(indentLevel + 1) + `let ${property.name}: ${property.type}`;
+            member += indent(indentLevel + 1) + `public let ${property.name}: ${property.type}`;
             member += property.optional ? "?" : "";
         }
         
