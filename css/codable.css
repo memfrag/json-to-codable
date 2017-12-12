@@ -1,0 +1,40 @@
+body {
+    margin-bottom: 40px;
+}
+
+label {
+    font-weight: bold;
+}
+
+.content-container {
+    margin: auto;
+    width: 600px;
+}
+
+#copyrightTextField {
+    width: 100%;
+    font-family: menlo;
+    margin-bottom: 10px;
+}
+
+#topLevelTypeTextField {
+    width: 100%;
+    font-family: menlo;
+    margin-bottom: 10px;
+}
+
+#jsonTextArea {
+    width: 100%;
+    height: 200px;
+    font-family: menlo;
+    font-size: 9px;
+    margin-bottom: 8px;
+}
+
+#resultDiv {
+    margin-top: 20px;
+    width: 100%;
+    font-family: menlo;
+    font-size: 11px;
+    white-space: pre;
+}
