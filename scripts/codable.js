@@ -20,7 +20,7 @@ function saveResult() {
 
 function generateCodable() {
 
-    const copyrightHeader = $('#copyrightTextField').val();
+    const copyrightHeader = $('#copyrightTextField').val().replace("{year}", (new Date()).getFullYear());
     const topLevelType = $('#topLevelTypeTextField').val();
     
     var json = null;
