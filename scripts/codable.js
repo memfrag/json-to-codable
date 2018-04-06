@@ -48,7 +48,7 @@ function generateCodable() {
 
 import Foundation
 
-public struct ${topLevelType}: Codable {${members}
+public struct ${topLevelType} {${members}
 }
 
 // ---------------------------------------------------------------------------
@@ -82,13 +82,13 @@ function generateMembers(properties, indentLevel) {
             } else if (property.subtype.charAt(0) == "[") {
                 continue;
             } else {
-                var nestedType = "\n" + indent(indentLevel + 1) + `public struct ${property.subtype}: Codable {`;
+                var nestedType = "\n" + indent(indentLevel + 1) + `public struct ${property.subtype} {`;
                 nestedType += `${generateMembers(property.properties, indentLevel + 1)}\n`
                 nestedType += indent(indentLevel + 1) + `}`;
                 nestedTypes += nestedType + "\n";                
             }
         } else {
-            var nestedType = "\n" + indent(indentLevel + 1) + `public struct ${property.type}: Codable {`;
+            var nestedType = "\n" + indent(indentLevel + 1) + `public struct ${property.type} {`;
             nestedType += `${generateMembers(property.properties, indentLevel + 1)}\n`
             nestedType += indent(indentLevel + 1) + `}`;
             nestedTypes += nestedType + "\n";
@@ -130,17 +130,23 @@ function generateCodableExtension(type, properties, extensions) {
         
     var codingKeys = generateCodingKeys(properties);
     var initializers = generateInitializers(properties);
+	var encoders = generateEncoders(properties);
     
     var output = `        
-extension ${type} {
+extension ${type}: Codable {
         
     enum CodingKeys: String, CodingKey {
         ${codingKeys}
     }
-        
+    
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         ${initializers}
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        ${encoders}
     }
 }
 `;
@@ -203,6 +209,23 @@ function generateInitializers(properties) {
         initializers += initializer + "\n";
     }
     return initializers.trim();
+}
+
+function generateEncoders(properties) {
+    var encoders = "";
+    for (var propertyIndex in properties) {
+        var property = properties[propertyIndex];
+        var encoder = "";
+        
+		if (!property.optional) {
+			encoder += indent(2) + `try container.encode(${property.name}, forKey: .${property.name})`;
+		} else {
+			encoder += indent(2) + `try container.encodeIfPresent(${property.name}, forKey: .${property.name})`;
+		}
+        
+        encoders += encoder + "\n";
+    }
+    return encoders.trim();
 }
 
 function indent(levels) {
