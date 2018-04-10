@@ -19,6 +19,13 @@ function saveResult() {
 }
 
 function generateCodable() {
+	
+	var protocolConformance = "Codable";
+	if ($('#conformToDecodable').is(':checked')) {
+		protocolConformance = "Decodable";
+	} else if ($('#conformToEncodable').is(':checked')) {
+		protocolConformance = "Encodable";
+	}
 
     const copyrightHeader = $('#copyrightTextField').val().replace("{year}", (new Date()).getFullYear());
     const topLevelType = $('#topLevelTypeTextField').val();
@@ -37,7 +44,7 @@ function generateCodable() {
         
     console.log(topLevelProperties);
     
-    const codableExtensions = generateCodableExtensions(topLevelType, topLevelProperties);
+    const codableExtensions = generateCodableExtensions(topLevelType, topLevelProperties, protocolConformance);
     
     const members = generateMembers(topLevelProperties, 0)
     
@@ -121,35 +128,50 @@ function generateMembers(properties, indentLevel) {
     return members.trim();
 }
 
-function generateCodableExtensions(topLevelType, topLevelProperties) {
+function generateCodableExtensions(topLevelType, topLevelProperties, protocolConformance) {
     var extensions = "";
-    return generateCodableExtension(topLevelType, topLevelProperties, extensions);
+    return generateCodableExtension(topLevelType, topLevelProperties, extensions, null, protocolConformance);
 }
 
-function generateCodableExtension(type, properties, extensions) {
+function generateCodableExtension(type, properties, extensions, comment, protocolConformance) {
         
     var codingKeys = generateCodingKeys(properties);
     var initializers = generateInitializers(properties);
 	var encoders = generateEncoders(properties);
     
-    var output = `        
-extension ${type}: Codable {
+	var commentString = '';
+	if (comment != null) {
+		commentString += '\n// ' + comment + "";
+	}
+	
+    var output = `${commentString}        
+extension ${type}: ${protocolConformance} {
         
     enum CodingKeys: String, CodingKey {
         ${codingKeys}
     }
-    
+`;
+
+	if (protocolConformance == "Codable" || protocolConformance == "Decodable") {
+		output += `    
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         ${initializers}
     }
-    
+`;		
+	} 
+	
+	if (protocolConformance == "Codable" || protocolConformance == "Encodable") {
+		output += `
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         ${encoders}
     }
-}
 `;
+	}
+
+	output += '}\n';
+	
     extensions += output;
     
     for (var propertyIndex in properties) {
@@ -161,10 +183,10 @@ extension ${type}: Codable {
             if (["Bool", "Int", "Double", "String"].includes(property.subtype)) {
                 continue;
             }
-            extensions = generateCodableExtension(type + "." + property.subtype, property.properties, extensions);
+            extensions = generateCodableExtension(type + "." + property.subtype, property.properties, extensions, property.comment, protocolConformance);
             continue;
         } else {
-            extensions = generateCodableExtension(type + "." + property.type, property.properties, extensions);
+            extensions = generateCodableExtension(type + "." + property.type, property.properties, extensions, property.comment, protocolConformance);
         }
     }
     
@@ -172,6 +194,11 @@ extension ${type}: Codable {
 }
 
 function generateCodingKeys(properties) {
+	
+	if (properties.length == 0) {
+		return (indent(2) + "// This object does not have properties.\n" + indent(2) + "// Add property coding keys here, once it does.\n").trim()
+	}
+	
     var codingKeys = "";
     for (var propertyIndex in properties) {
         var property = properties[propertyIndex];
@@ -185,6 +212,11 @@ function generateCodingKeys(properties) {
 }
 
 function generateInitializers(properties) {
+	
+	if (properties.length == 0) {
+		return (indent(2) + "// This object does not have properties.\n" + indent(2) + "// Add property initializers here, once it does.\n").trim()
+	}
+	
     var initializers = "";
     for (var propertyIndex in properties) {
         var property = properties[propertyIndex];
@@ -251,7 +283,8 @@ function createObject(json) {
                     key: jsonKey,
                     type: "Bool",
                     optional: true,
-                    properties: null
+                    properties: null,
+					comment: null
                 };
                 properties.push(property);
                 break;
@@ -262,7 +295,8 @@ function createObject(json) {
                     key: jsonKey,
                     type: "String",
                     optional: true,
-                    properties: null
+                    properties: null,
+					comment: null
                 };
                 properties.push(property);
                 break;
@@ -274,7 +308,8 @@ function createObject(json) {
                         key: jsonKey,
                         type: "Int",
                         optional: true,
-                        properties: null
+                        properties: null,
+						comment: null
                     };
                     properties.push(property);
                 } else {
@@ -283,7 +318,8 @@ function createObject(json) {
                         key: jsonKey,
                         type: "Double",
                         optional: true,
-                        properties: null
+                        properties: null,
+						comment: null
                     };
                     properties.push(property);
                 }
@@ -297,7 +333,8 @@ function createObject(json) {
                         key: jsonKey,
                         type: "Any",
                         optional: true,
-                        properties: null
+                        properties: null,
+						comment: "This was a null in the JSON"
                     };
                     properties.push(property);
                 } else if (Array.isArray(value)) {
@@ -306,9 +343,10 @@ function createObject(json) {
                             name: key,
                             key: jsonKey,
                             type: "[]",
-                            subtype: "Any",
-                            optional: true,
-                            properties: []
+                            subtype: key.uppercaseFirstLetter() + "Element",
+                            optional: false,
+                            properties: [],
+							comment: "This element is from an empty array and thus has no properties."
                         };
                         properties.push(property);
                     } else {
@@ -349,7 +387,8 @@ function createObject(json) {
                             type: "[]",
                             subtype: subtype,
                             optional: false,
-                            properties: subproperties
+                            properties: subproperties,
+							comment: null
                         };
                         properties.push(property);
                     }
@@ -359,7 +398,8 @@ function createObject(json) {
                         key: jsonKey,
                         type: key.uppercaseFirstLetter(),
                         optional: true,
-                        properties: createObject(value)
+                        properties: createObject(value),
+						comment: null
                     };
                     properties.push(property);
                 }

@@ -69,13 +69,26 @@
  }
             </textarea>
         </div>
-            
-        <button type="button" class="btn btn-success" onClick="generateCodable()">Generate</button>
+        
+		<div>
+			<label>Protocol Conformance</label>
+			<div class="radio">
+		  		<label><input type="radio" id="conformToCodable" name="codableOption" checked>Codable</label>
+			</div>
+			<div class="radio">
+				<label><input type="radio" id="conformToDecodable" name="codableOption">Decodable</label>
+			</div>
+			<div class="radio">
+		  		<label><input type="radio" id="conformToEncodable" name="codableOption">Encodable</label>
+			</div>
+		</div>
+				
+        <button type="button" class="btn btn-success" onClick="generateCodable()">Generate Swift</button>
         
         <div id="resultDiv">No generated code yet.</div>
         <br>
 
-        <button type="button" class="btn btn-primary" onClick="saveResult()">Download .swift</button>
+        <button type="button" class="btn btn-primary" onClick="saveResult()">Download .swift file</button>
         
     </div>
 
