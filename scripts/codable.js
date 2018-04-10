@@ -77,7 +77,7 @@ function generateMembers(properties, indentLevel) {
         if (["Bool", "Int", "Double", "String"].includes(property.type)) {
             continue;
         } else if (property.type == "[]") {
-            if (["Bool", "Int", "Double", "String"].includes(property.subtype)) {
+            if (["Bool", "Int", "Double", "String", "Any"].includes(property.subtype)) {
                 continue;
             } else if (property.subtype.charAt(0) == "[") {
                 continue;
