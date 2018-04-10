@@ -301,7 +301,7 @@ function createObject(json) {
                     };
                     properties.push(property);
                 } else if (Array.isArray(value)) {
-                    if (value.count == 0) {
+                    if (value.length == 0) {
                         property = {
                             name: key,
                             key: jsonKey,
