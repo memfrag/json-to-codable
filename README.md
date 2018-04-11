@@ -2,4 +2,4 @@
 
 Given typical JSON, json-to-codable generates corresponding Swift Codable objects.
 
-https://bontouch.github.io/json-to-codable/
+https://memfrag.github.io/json-to-codable/
