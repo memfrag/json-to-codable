@@ -195,7 +195,7 @@ extension ${type}: ${protocolConformance} {
 
 function generateCodingKeys(properties) {
 	
-	if (properties.length == 0) {
+	if (properties == null || properties.length == 0) {
 		return (indent(2) + "// This object does not have properties.\n" + indent(2) + "// Add property coding keys here, once it does.\n").trim()
 	}
 	
@@ -213,7 +213,7 @@ function generateCodingKeys(properties) {
 
 function generateInitializers(properties) {
 	
-	if (properties.length == 0) {
+	if (properties == null || properties.length == 0) {
 		return (indent(2) + "// This object does not have properties.\n" + indent(2) + "// Add property initializers here, once it does.\n").trim()
 	}
 	
@@ -331,7 +331,7 @@ function createObject(json) {
                     property = {
                         name: key,
                         key: jsonKey,
-                        type: "Any",
+                        type: "NullObject",
                         optional: true,
                         properties: null,
 						comment: "This was a null in the JSON"
