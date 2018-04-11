@@ -81,10 +81,10 @@ function generateMembers(properties, indentLevel) {
     
     for (var propertyIndex in properties) {
         var property = properties[propertyIndex];
-        if (["Bool", "Int", "Double", "String"].includes(property.type)) {
+        if (["Bool", "Int", "Double", "String", "NullObject"].includes(property.type)) {
             continue;
         } else if (property.type == "[]") {
-            if (["Bool", "Int", "Double", "String", "Any"].includes(property.subtype)) {
+            if (["Bool", "Int", "Double", "String", "Any", "NullObject"].includes(property.subtype)) {
                 continue;
             } else if (property.subtype.charAt(0) == "[") {
                 continue;
@@ -113,7 +113,8 @@ function generateMembers(properties, indentLevel) {
             member += indent(indentLevel + 1) + `public let ${property.name}: [${property.subtype}]`;
             member += property.optional ? "?" : "";
         } else {
-            member += indent(indentLevel + 1) + `public let ${property.name}: ${property.type}`;
+			const commentedOut = property.type == "NullObject" ? "// " : "";
+            member += indent(indentLevel + 1) + commentedOut + `public let ${property.name}: ${property.type}`;
             member += property.optional ? "?" : "";
         }
         
@@ -177,10 +178,10 @@ extension ${type}: ${protocolConformance} {
     for (var propertyIndex in properties) {
         var property = properties[propertyIndex];
         
-        if (["Bool", "Int", "Double", "String"].includes(property.type)) {
+        if (["Bool", "Int", "Double", "String", "NullObject"].includes(property.type)) {
             continue;
         } else if (property.type == "[]") {
-            if (["Bool", "Int", "Double", "String"].includes(property.subtype)) {
+            if (["Bool", "Int", "Double", "String", "NullObject"].includes(property.subtype)) {
                 continue;
             }
             extensions = generateCodableExtension(type + "." + property.subtype, property.properties, extensions, property.comment, protocolConformance);
