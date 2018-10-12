@@ -11,6 +11,7 @@
     <script src="scripts/bootstrap.min.js"></script>
     <script src="scripts/codable.js"></script>
     <script src="scripts/FileSaver.min.js"></script>
+    <script src="scripts/clipboard.min.js"></script>
 </head>
 <body>
         
@@ -84,13 +85,21 @@
 		</div>
 				
         <button type="button" class="btn btn-success" onClick="generateCodable()">Generate Swift</button>
+    
+        <hr/>
+    
+        <button id="to-clipboard" type="button" class="btn btn-primary" data-clipboard-target="#resultDiv">Copy Swift to Clipboard</button>
+        <button type="button" class="btn btn-primary" onClick="saveResult()">Download .swift file</button>
         
-        <div id="resultDiv">No generated code yet.</div>
+        <div id="resultDiv">No generated Swift code yet.</div>
         <br>
 
-        <button type="button" class="btn btn-primary" onClick="saveResult()">Download .swift file</button>
         
     </div>
 
+    <script>
+        new ClipboardJS('#to-clipboard');
+    </script>
+    
 </body>
 </html>
